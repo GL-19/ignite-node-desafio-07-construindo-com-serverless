@@ -6,6 +6,7 @@ const serverlessConfiguration: AWS = {
 	plugins: ["serverless-esbuild", "serverless-dynamodb-local", "serverless-offline"],
 	provider: {
 		name: "aws",
+		region: "sa-east-1",
 		runtime: "nodejs14.x",
 		apiGateway: {
 			minimumCompressionSize: 1024,
@@ -17,7 +18,20 @@ const serverlessConfiguration: AWS = {
 		},
 	},
 	// import the function via paths
-	functions: {},
+	functions: {
+		createTodo: {
+			handler: "src/functions/createTodo.handler",
+			events: [
+				{
+					http: {
+						path: "createTodo/{id}",
+						method: "post",
+						cors: true,
+					},
+				},
+			],
+		},
+	},
 	package: { individually: true },
 	custom: {
 		esbuild: {

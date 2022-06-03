@@ -8,39 +8,48 @@ interface IRequestBody {
 }
 
 export const handler: APIGatewayProxyHandler = async (event) => {
-	const { title, deadline } = JSON.parse(event.body) as IRequestBody;
-	const { id: user_id } = event.pathParameters;
+	try {
+		const { title, deadline } = JSON.parse(event.body) as IRequestBody;
+		const { id: user_id } = event.pathParameters;
 
-	const id = uuid();
+		const id = uuid();
 
-	await document
-		.put({
-			TableName: "todos",
-			Item: {
-				id,
-				user_id,
-				title,
-				done: false,
-				deadline: new Date(deadline),
-			},
-		})
-		.promise();
+		await document
+			.put({
+				TableName: "todos",
+				Item: {
+					id,
+					user_id,
+					title,
+					done: false,
+					deadline: new Date(deadline),
+				},
+			})
+			.promise();
 
-	const response = await document
-		.query({
-			TableName: "todos",
-			KeyConditionExpression: "id = :id",
-			ExpressionAttributeValues: {
-				":id": id,
-			},
-		})
-		.promise();
+		const response = await document
+			.query({
+				TableName: "todos",
+				KeyConditionExpression: "id = :id",
+				ExpressionAttributeValues: {
+					":id": id,
+				},
+			})
+			.promise();
 
-	return {
-		statusCode: 201,
-		body: JSON.stringify({
-			message: "Todo criado com sucesso!",
-			todo: response,
-		}),
-	};
+		return {
+			statusCode: 201,
+			body: JSON.stringify({
+				message: "Todo criado com sucesso!",
+				todo: response.Items[0],
+			}),
+		};
+	} catch (err) {
+		return {
+			statusCode: 400,
+			body: JSON.stringify({
+				message: "Could not create todo",
+			}),
+		};
+	}
 };
