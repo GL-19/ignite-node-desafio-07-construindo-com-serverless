@@ -31,6 +31,18 @@ const serverlessConfiguration: AWS = {
 				},
 			],
 		},
+		getTodo: {
+			handler: "src/functions/getTodo.handler",
+			events: [
+				{
+					http: {
+						path: "getTodo/{id}",
+						method: "get",
+						cors: true,
+					},
+				},
+			],
+		},
 	},
 	package: { individually: true },
 	custom: {
