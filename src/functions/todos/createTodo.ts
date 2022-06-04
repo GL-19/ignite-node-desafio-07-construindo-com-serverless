@@ -17,7 +17,7 @@ interface ITodoData {
 
 export const handler: APIGatewayProxyHandler = async (event) => {
 	const { title, deadline } = JSON.parse(event.body) as IRequestBody;
-	const { id: user_id } = event.pathParameters;
+	const { user_id } = event.pathParameters;
 
 	if (!title || !deadline) {
 		return {

@@ -3,15 +3,26 @@ import { document } from "../../utils/dynamodbClient";
 import { validate } from "uuid";
 
 export const handler: APIGatewayProxyHandler = async (event) => {
-	const { user_id } = event.pathParameters;
+	const { user_id, todo_id } = event.pathParameters;
 
-	const isValidId = validate(user_id);
+	const isValidUserId = validate(user_id);
 
-	if (!isValidId) {
+	if (!isValidUserId) {
 		return {
 			statusCode: 400,
 			body: JSON.stringify({
 				message: "Invalid user id!",
+			}),
+		};
+	}
+
+	const isValidTodoId = validate(todo_id);
+
+	if (!isValidTodoId) {
+		return {
+			statusCode: 400,
+			body: JSON.stringify({
+				message: "Invalid todo id!",
 			}),
 		};
 	}
@@ -38,21 +49,30 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 	}
 
 	const todosQueryResponse = await document
-		.scan({
+		.query({
 			TableName: "todos",
-			FilterExpression: "user_id = :id",
+			KeyConditionExpression: "id = :id",
 			ExpressionAttributeValues: {
-				":id": user_id,
+				":id": todo_id,
 			},
 		})
 		.promise();
 
-	const todos = todosQueryResponse.Items;
+	const todo = todosQueryResponse.Items[0];
+
+	if (!todo) {
+		return {
+			statusCode: 404,
+			body: JSON.stringify({
+				message: "Todo not found!",
+			}),
+		};
+	}
 
 	return {
 		statusCode: 200,
 		body: JSON.stringify({
-			todos,
+			todo,
 		}),
 	};
 };

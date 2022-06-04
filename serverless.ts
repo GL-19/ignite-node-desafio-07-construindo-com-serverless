@@ -24,7 +24,7 @@ const serverlessConfiguration: AWS = {
 			events: [
 				{
 					http: {
-						path: "todos/{id}",
+						path: "todos/{user_id}",
 						method: "post",
 						cors: true,
 					},
@@ -36,7 +36,19 @@ const serverlessConfiguration: AWS = {
 			events: [
 				{
 					http: {
-						path: "todos/{id}",
+						path: "todos/{user_id}",
+						method: "get",
+						cors: true,
+					},
+				},
+			],
+		},
+		getTodo: {
+			handler: "src/functions/todos/getTodo.handler",
+			events: [
+				{
+					http: {
+						path: "todos/{user_id}/{todo_id}",
 						method: "get",
 						cors: true,
 					},
@@ -48,7 +60,7 @@ const serverlessConfiguration: AWS = {
 			events: [
 				{
 					http: {
-						path: "users/{id}",
+						path: "users/{user_id}",
 						method: "get",
 						cors: true,
 					},

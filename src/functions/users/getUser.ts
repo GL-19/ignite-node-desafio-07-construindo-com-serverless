@@ -3,9 +3,9 @@ import { document } from "../../utils/dynamodbClient";
 import { validate } from "uuid";
 
 export const handler: APIGatewayProxyHandler = async (event) => {
-	const { id } = event.pathParameters;
+	const { user_id } = event.pathParameters;
 
-	const isValidId = validate(id);
+	const isValidId = validate(user_id);
 
 	if (!isValidId) {
 		return {
@@ -21,7 +21,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 			TableName: "users",
 			KeyConditionExpression: "id = :id",
 			ExpressionAttributeValues: {
-				":id": id,
+				":id": user_id,
 			},
 		})
 		.promise();
