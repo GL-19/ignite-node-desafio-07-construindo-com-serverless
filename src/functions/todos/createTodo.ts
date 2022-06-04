@@ -39,7 +39,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 		};
 	}
 
-	const userQueryResponse = await document
+	const response = await document
 		.query({
 			TableName: "users",
 			KeyConditionExpression: "id = :id",
@@ -49,7 +49,9 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 		})
 		.promise();
 
-	if (userQueryResponse.Items[0].length < 1) {
+	const user = response.Items[0];
+
+	if (!user) {
 		return {
 			statusCode: 404,
 			body: JSON.stringify({
