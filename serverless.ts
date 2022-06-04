@@ -20,11 +20,11 @@ const serverlessConfiguration: AWS = {
 	// import the function via paths
 	functions: {
 		createTodo: {
-			handler: "src/functions/createTodo.handler",
+			handler: "src/functions/todos/createTodo.handler",
 			events: [
 				{
 					http: {
-						path: "createTodo/{id}",
+						path: "todos/createTodo/{id}",
 						method: "post",
 						cors: true,
 					},
@@ -32,12 +32,24 @@ const serverlessConfiguration: AWS = {
 			],
 		},
 		getTodo: {
-			handler: "src/functions/getTodo.handler",
+			handler: "src/functions/todos/getTodo.handler",
 			events: [
 				{
 					http: {
-						path: "getTodo/{id}",
+						path: "todos/getTodo/{id}",
 						method: "get",
+						cors: true,
+					},
+				},
+			],
+		},
+		createUser: {
+			handler: "src/functions/users/createUser.handler",
+			events: [
+				{
+					http: {
+						path: "users/createUser",
+						method: "post",
 						cors: true,
 					},
 				},
@@ -71,6 +83,28 @@ const serverlessConfiguration: AWS = {
 				Type: "AWS::DynamoDB::Table",
 				Properties: {
 					TableName: "todos",
+					ProvisionedThroughput: {
+						ReadCapacityUnits: 5,
+						WriteCapacityUnits: 5,
+					},
+					AttributeDefinitions: [
+						{
+							AttributeName: "id",
+							AttributeType: "S",
+						},
+					],
+					KeySchema: [
+						{
+							AttributeName: "id",
+							KeyType: "HASH",
+						},
+					],
+				},
+			},
+			dbUsers: {
+				Type: "AWS::DynamoDB::Table",
+				Properties: {
+					TableName: "users",
 					ProvisionedThroughput: {
 						ReadCapacityUnits: 5,
 						WriteCapacityUnits: 5,

@@ -1,5 +1,5 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
-import { document } from "../utils/dynamodbClient";
+import { document } from "../../utils/dynamodbClient";
 
 export const handler: APIGatewayProxyHandler = async (event) => {
 	try {
@@ -15,6 +15,14 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 			})
 			.promise();
 
+		if (response.Items.length < 1) {
+			return {
+				statusCode: 400,
+				body: JSON.stringify({
+					message: "Todo not found!",
+				}),
+			};
+		}
 		return {
 			statusCode: 200,
 			body: JSON.stringify({
@@ -23,7 +31,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 		};
 	} catch (err) {
 		return {
-			statusCode: 400,
+			statusCode: 404,
 			body: JSON.stringify({
 				message: "Todo not found!",
 			}),
