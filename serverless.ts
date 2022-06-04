@@ -55,6 +55,18 @@ const serverlessConfiguration: AWS = {
 				},
 			],
 		},
+		deleteTodo: {
+			handler: "src/functions/todos/deleteTodo.handler",
+			events: [
+				{
+					http: {
+						path: "todos/{user_id}/{todo_id}",
+						method: "delete",
+						cors: true,
+					},
+				},
+			],
+		},
 		getUser: {
 			handler: "src/functions/users/getUser.handler",
 			events: [
@@ -62,6 +74,18 @@ const serverlessConfiguration: AWS = {
 					http: {
 						path: "users/{user_id}",
 						method: "get",
+						cors: true,
+					},
+				},
+			],
+		},
+		deleteUser: {
+			handler: "src/functions/users/deleteUser.handler",
+			events: [
+				{
+					http: {
+						path: "users/{user_id}",
+						method: "delete",
 						cors: true,
 					},
 				},
