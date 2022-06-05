@@ -5,9 +5,9 @@ import { validate } from "uuid";
 export const handler: APIGatewayProxyHandler = async (event) => {
 	const { user_id } = event.pathParameters;
 
-	const isValidUserId = validate(user_id);
+	const validUserId = validate(user_id);
 
-	if (!isValidUserId) {
+	if (!validUserId) {
 		return {
 			statusCode: 400,
 			body: JSON.stringify({
