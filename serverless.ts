@@ -55,6 +55,18 @@ const serverlessConfiguration: AWS = {
 				},
 			],
 		},
+		updateTodoDoneProp: {
+			handler: "src/functions/todos/updateTodoDoneProp.handler",
+			events: [
+				{
+					http: {
+						path: "todos/{user_id}/{todo_id}",
+						method: "patch",
+						cors: true,
+					},
+				},
+			],
+		},
 		deleteTodo: {
 			handler: "src/functions/todos/deleteTodo.handler",
 			events: [

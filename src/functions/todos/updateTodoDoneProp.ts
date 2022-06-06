@@ -28,6 +28,15 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 		if (user.id !== todo.user_id) {
 			throw new Errors.Forbidden();
 		}
+
+		const updatedTodo = await TodosRepository.updateDoneProp(todo_id, done);
+
+		return {
+			statusCode: 201,
+			body: JSON.stringify({
+				todo: updatedTodo,
+			}),
+		};
 	} catch (err) {
 		if (err instanceof AppError) {
 			return {
