@@ -1,19 +1,19 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
 import { AppError } from "src/errors/AppError";
-import * as usersRepository from "../../repositories/UsersRepository";
-import * as todosRepository from "../../repositories/TodosRepository";
+import { UsersRepository } from "../../repositories/UsersRepository";
+import { TodosRepository } from "../../repositories/TodosRepository";
 
 export const handler: APIGatewayProxyHandler = async (event) => {
 	try {
 		const { user_id } = event.pathParameters;
 
-		const user = await usersRepository.getUserById(user_id);
+		const user = await UsersRepository.getById(user_id);
 
 		if (!user) {
 			throw new AppError("User not found!", 404);
 		}
 
-		const todos = await todosRepository.listTodosByUserId(user_id);
+		const todos = await TodosRepository.listByUserId(user_id);
 
 		return {
 			statusCode: 200,

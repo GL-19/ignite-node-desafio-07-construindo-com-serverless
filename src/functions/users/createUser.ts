@@ -1,6 +1,6 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
 import { AppError } from "src/errors/AppError";
-import * as usersRepository from "../../repositories/UsersRepository";
+import { UsersRepository } from "../../repositories/UsersRepository";
 import { User } from "src/entities/User";
 
 interface IRequestBody {
@@ -13,18 +13,18 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 		const { name, email } = JSON.parse(event.body) as IRequestBody;
 
 		if (!name || !email) {
-			throw new AppError("Invalid body data!", 400);
+			throw new AppError("Invalid request body!", 400);
 		}
 
-		const userExists = await usersRepository.getUserByEmail(email);
+		const userExists = await UsersRepository.getByEmail(email);
 
 		if (userExists) {
-			throw new AppError("User already Exists!", 400);
+			throw new AppError("User already exists!", 400);
 		}
 
 		const user = new User(name, email);
 
-		await usersRepository.createUser(user);
+		await UsersRepository.create(user);
 
 		return {
 			statusCode: 201,

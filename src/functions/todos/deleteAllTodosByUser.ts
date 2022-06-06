@@ -1,11 +1,11 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
 import { AppError } from "src/errors/AppError";
-import { UsersRepository } from "../../repositories/UsersRepository";
-import { TodosRepository } from "../../repositories/TodosRepository";
+import { TodosRepository } from "src/repositories/TodosRepository";
+import { UsersRepository } from "src/repositories/UsersRepository";
 
 export const handler: APIGatewayProxyHandler = async (event) => {
 	try {
-		const { user_id, todo_id } = event.pathParameters;
+		const { user_id } = event.pathParameters;
 
 		const user = await UsersRepository.getById(user_id);
 
@@ -13,23 +13,12 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 			throw new AppError("User not found!", 404);
 		}
 
-		const todo = await TodosRepository.getById(todo_id);
-
-		if (!todo) {
-			throw new AppError("Todo not found!", 404);
-		}
-
-		if (user.id !== todo.user_id) {
-			throw new AppError("Forbidden!", 403);
-		}
-
-		await TodosRepository.deleteTodo(todo_id);
+		await TodosRepository.deleteAllByUserId(user_id);
 
 		return {
 			statusCode: 200,
 			body: JSON.stringify({
-				message: "Todo deleted!",
-				todo,
+				message: "Todos deleted with success!",
 			}),
 		};
 	} catch (err) {

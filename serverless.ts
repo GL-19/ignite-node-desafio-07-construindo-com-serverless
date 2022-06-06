@@ -67,6 +67,18 @@ const serverlessConfiguration: AWS = {
 				},
 			],
 		},
+		deleteAllTodosByUser: {
+			handler: "src/functions/todos/deleteAllTodosByUser.handler",
+			events: [
+				{
+					http: {
+						path: "todos/{user_id}",
+						method: "delete",
+						cors: true,
+					},
+				},
+			],
+		},
 		getUser: {
 			handler: "src/functions/users/getUser.handler",
 			events: [

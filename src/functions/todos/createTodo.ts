@@ -1,7 +1,7 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
 import { AppError } from "src/errors/AppError";
-import * as usersRepository from "../../repositories/UsersRepository";
-import * as todosRepository from "../../repositories/TodosRepository";
+import { UsersRepository } from "../../repositories/UsersRepository";
+import { TodosRepository } from "../../repositories/TodosRepository";
 import { Todo } from "src/entities/Todo";
 
 interface IRequestBody {
@@ -15,10 +15,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 		const { user_id } = event.pathParameters;
 
 		if (!title || !deadline) {
-			throw new AppError("Invalid body data!", 400);
+			throw new AppError("Invalid request body!", 400);
 		}
 
-		const user = await usersRepository.getUserById(user_id);
+		const user = await UsersRepository.getById(user_id);
 
 		if (!user) {
 			throw new AppError("User not found!", 404);
@@ -26,7 +26,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
 		const todo = new Todo(user_id, title, deadline);
 
-		await todosRepository.createTodo(todo);
+		await TodosRepository.create(todo);
 
 		return {
 			statusCode: 201,
