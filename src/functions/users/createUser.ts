@@ -1,18 +1,12 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
 import { document } from "../../utils/dynamodbClient";
-import { v4 as uuid } from "uuid";
 import { AppError } from "src/errors/AppError";
+import * as usersRepository from "../../repositories/UsersRepository";
+import { User } from "src/types/User";
 
 interface IRequestBody {
 	name: string;
 	email: string;
-}
-
-interface IUserData {
-	id: string;
-	name: string;
-	email: string;
-	created_at: string;
 }
 
 export const handler: APIGatewayProxyHandler = async (event) => {
@@ -23,33 +17,18 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 			throw new AppError("Invalid body data!", 400);
 		}
 
-		const response = await document
-			.scan({
-				TableName: "users",
-				FilterExpression: "email = :email",
-				ExpressionAttributeValues: {
-					":email": email,
-				},
-			})
-			.promise();
+		const userExists = await usersRepository.getUserByEmail(email);
 
-		const user = response.Items[0];
-
-		if (user) {
+		if (userExists) {
 			throw new AppError("User already Exists!", 400);
 		}
 
-		const userData: IUserData = {
-			id: uuid(),
-			name,
-			email,
-			created_at: new Date().toDateString(),
-		};
+		const user = new User(name, email);
 
 		await document
 			.put({
 				TableName: "users",
-				Item: userData,
+				Item: user,
 			})
 			.promise();
 
@@ -57,7 +36,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 			statusCode: 201,
 			body: JSON.stringify({
 				message: "User created!",
-				user: userData,
+				user,
 			}),
 		};
 	} catch (err) {
