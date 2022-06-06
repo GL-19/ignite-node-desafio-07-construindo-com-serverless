@@ -12,8 +12,8 @@ interface IRequestBody {
 
 export const handler: APIGatewayProxyHandler = async (event) => {
 	try {
-		const { title, deadline } = JSON.parse(event.body) as IRequestBody;
 		const { user_id } = event.pathParameters;
+		const { title, deadline } = JSON.parse(event.body) as IRequestBody;
 
 		if (!title || !deadline) {
 			throw new Errors.InvalidRequestBody();

@@ -79,6 +79,18 @@ const serverlessConfiguration: AWS = {
 				},
 			],
 		},
+		updateTodo: {
+			handler: "src/functions/todos/updateTodo.handler",
+			events: [
+				{
+					http: {
+						path: "todos/{user_id}/{todo_id}",
+						method: "put",
+						cors: true,
+					},
+				},
+			],
+		},
 		deleteAllTodosByUser: {
 			handler: "src/functions/todos/deleteAllTodosByUser.handler",
 			events: [
@@ -98,6 +110,18 @@ const serverlessConfiguration: AWS = {
 					http: {
 						path: "users/{user_id}",
 						method: "get",
+						cors: true,
+					},
+				},
+			],
+		},
+		updateUser: {
+			handler: "src/functions/users/updateUser.handler",
+			events: [
+				{
+					http: {
+						path: "users/{user_id}",
+						method: "put",
 						cors: true,
 					},
 				},

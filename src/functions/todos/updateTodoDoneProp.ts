@@ -11,7 +11,12 @@ interface IRequestBody {
 export const handler: APIGatewayProxyHandler = async (event) => {
 	try {
 		const { user_id, todo_id } = event.pathParameters;
-		const { done } = JSON.parse(event.body) as IRequestBody;
+		const requestBody = JSON.parse(event.body) as IRequestBody;
+		const { done } = requestBody;
+
+		if (!("done" in requestBody)) {
+			throw new Errors.InvalidRequestBody();
+		}
 
 		const user = await UsersRepository.getById(user_id);
 
