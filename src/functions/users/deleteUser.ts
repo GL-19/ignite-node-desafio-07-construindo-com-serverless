@@ -1,5 +1,6 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
 import { AppError } from "src/errors/AppError";
+import { Errors } from "src/errors/Errors";
 import { UsersRepository } from "../../repositories/UsersRepository";
 
 export const handler: APIGatewayProxyHandler = async (event) => {
@@ -9,7 +10,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 		const user = await UsersRepository.getById(user_id);
 
 		if (!user) {
-			throw new AppError(`User not found!`, 404);
+			throw new Errors.UserNotFound();
 		}
 
 		await UsersRepository.deleteUser(user_id);

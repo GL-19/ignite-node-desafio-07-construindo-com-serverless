@@ -81,4 +81,20 @@ export namespace TodosRepository {
 
 		return todo as Todo;
 	}
+
+	export async function updateDoneProp(id: string, done: boolean = false) {
+		const response = await document.update({
+			TableName: "todos",
+			Key: {
+				id,
+			},
+			UpdateExpression: "set done = :done",
+			ExpressionAttributeValues: {
+				":done": done,
+			},
+			ReturnValues: "ALL_NEW",
+		});
+
+		return response;
+	}
 }

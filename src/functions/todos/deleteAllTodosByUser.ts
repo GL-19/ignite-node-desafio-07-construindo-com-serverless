@@ -1,5 +1,6 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
 import { AppError } from "src/errors/AppError";
+import { Errors } from "src/errors/Errors";
 import { TodosRepository } from "src/repositories/TodosRepository";
 import { UsersRepository } from "src/repositories/UsersRepository";
 
@@ -10,7 +11,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 		const user = await UsersRepository.getById(user_id);
 
 		if (!user) {
-			throw new AppError("User not found!", 404);
+			throw new Errors.UserNotFound();
 		}
 
 		await TodosRepository.deleteAllByUserId(user_id);

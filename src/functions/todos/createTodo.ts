@@ -3,6 +3,7 @@ import { AppError } from "src/errors/AppError";
 import { UsersRepository } from "../../repositories/UsersRepository";
 import { TodosRepository } from "../../repositories/TodosRepository";
 import { Todo } from "src/entities/Todo";
+import { Errors } from "src/errors/Errors";
 
 interface IRequestBody {
 	title: string;
@@ -15,13 +16,13 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 		const { user_id } = event.pathParameters;
 
 		if (!title || !deadline) {
-			throw new AppError("Invalid request body!", 400);
+			throw new Errors.InvalidRequestBody();
 		}
 
 		const user = await UsersRepository.getById(user_id);
 
 		if (!user) {
-			throw new AppError("User not found!", 404);
+			throw new Errors.UserNotFound();
 		}
 
 		const todo = new Todo(user_id, title, deadline);

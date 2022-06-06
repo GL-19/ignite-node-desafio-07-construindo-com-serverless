@@ -2,6 +2,7 @@ import { APIGatewayProxyHandler } from "aws-lambda";
 import { AppError } from "src/errors/AppError";
 import { UsersRepository } from "../../repositories/UsersRepository";
 import { TodosRepository } from "../../repositories/TodosRepository";
+import { Errors } from "src/errors/Errors";
 
 export const handler: APIGatewayProxyHandler = async (event) => {
 	try {
@@ -10,17 +11,17 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 		const user = await UsersRepository.getById(user_id);
 
 		if (!user) {
-			throw new AppError("User not found!", 404);
+			throw new Errors.UserNotFound();
 		}
 
 		const todo = await TodosRepository.getById(todo_id);
 
 		if (!todo) {
-			throw new AppError("Todo not found!", 404);
+			throw new Errors.TodoNotFound();
 		}
 
 		if (user.id !== todo.user_id) {
-			throw new AppError("Forbidden!", 403);
+			throw new Errors.Forbidden();
 		}
 
 		return {

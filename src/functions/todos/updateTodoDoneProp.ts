@@ -1,12 +1,17 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
 import { AppError } from "src/errors/AppError";
-import { UsersRepository } from "../../repositories/UsersRepository";
-import { TodosRepository } from "../../repositories/TodosRepository";
 import { Errors } from "src/errors/Errors";
+import { TodosRepository } from "src/repositories/TodosRepository";
+import { UsersRepository } from "src/repositories/UsersRepository";
+
+interface IRequestBody {
+	done: boolean;
+}
 
 export const handler: APIGatewayProxyHandler = async (event) => {
 	try {
-		const { user_id } = event.pathParameters;
+		const { user_id, todo_id } = event.pathParameters;
+		const { done } = JSON.parse(event.body) as IRequestBody;
 
 		const user = await UsersRepository.getById(user_id);
 
@@ -14,14 +19,15 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 			throw new Errors.UserNotFound();
 		}
 
-		const todos = await TodosRepository.listByUserId(user_id);
+		const todo = await TodosRepository.getById(todo_id);
 
-		return {
-			statusCode: 200,
-			body: JSON.stringify({
-				todos,
-			}),
-		};
+		if (!todo) {
+			throw new Errors.TodoNotFound();
+		}
+
+		if (user.id !== todo.user_id) {
+			throw new Errors.Forbidden();
+		}
 	} catch (err) {
 		if (err instanceof AppError) {
 			return {
