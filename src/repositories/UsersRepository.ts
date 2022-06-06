@@ -1,5 +1,5 @@
 import { document } from "../utils/dynamodbClient";
-import { User } from "src/types/User";
+import { User } from "src/entities/User";
 
 async function createUser(user: User): Promise<void> {
 	await document
@@ -10,7 +10,7 @@ async function createUser(user: User): Promise<void> {
 		.promise();
 }
 
-async function deleteUser(id: User): Promise<void> {
+async function deleteUser(id: string): Promise<void> {
 	await document
 		.delete({
 			TableName: "users",

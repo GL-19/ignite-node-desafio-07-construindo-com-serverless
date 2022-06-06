@@ -1,7 +1,8 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
 import { document } from "../../utils/dynamodbClient";
-import { v4 as uuid, validate } from "uuid";
+import { v4 as uuid } from "uuid";
 import { AppError } from "src/errors/AppError";
+import * as usersRepository from "../../repositories/UsersRepository";
 
 interface IRequestBody {
 	title: string;
@@ -25,23 +26,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 			throw new AppError("Invalid body data!", 400);
 		}
 
-		const validId = validate(user_id);
-
-		if (!validId) {
-			throw new AppError("Invalid user id!", 400);
-		}
-
-		const response = await document
-			.query({
-				TableName: "users",
-				KeyConditionExpression: "id = :id",
-				ExpressionAttributeValues: {
-					":id": user_id,
-				},
-			})
-			.promise();
-
-		const user = response.Items[0];
+		const user = await usersRepository.getUserById(user_id);
 
 		if (!user) {
 			throw new AppError("User not found!", 404);

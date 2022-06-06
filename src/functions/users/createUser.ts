@@ -1,8 +1,7 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
-import { document } from "../../utils/dynamodbClient";
 import { AppError } from "src/errors/AppError";
 import * as usersRepository from "../../repositories/UsersRepository";
-import { User } from "src/types/User";
+import { User } from "src/entities/User";
 
 interface IRequestBody {
 	name: string;
@@ -25,12 +24,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
 		const user = new User(name, email);
 
-		await document
-			.put({
-				TableName: "users",
-				Item: user,
-			})
-			.promise();
+		await usersRepository.createUser(user);
 
 		return {
 			statusCode: 201,

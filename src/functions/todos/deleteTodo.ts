@@ -1,32 +1,13 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
 import { AppError } from "src/errors/AppError";
 import { document } from "src/utils/dynamodbClient";
-import { validate } from "uuid";
+import * as usersRepository from "../../repositories/UsersRepository";
 
 export const handler: APIGatewayProxyHandler = async (event) => {
 	try {
 		const { user_id, todo_id } = event.pathParameters;
 
-		const validUserId = validate(user_id);
-
-		if (!validUserId) {
-			throw new AppError("Invalid user id!", 400);
-		}
-
-		const validTodoId = validate(todo_id);
-
-		if (!validTodoId) {
-			throw new AppError("Invalid todo id!", 400);
-		}
-
-		const user = await document
-			.get({
-				TableName: "users",
-				Key: {
-					id: user_id,
-				},
-			})
-			.promise();
+		const user = await usersRepository.getUserById(user_id);
 
 		if (Object.keys(user).length === 0) {
 			throw new AppError("User not found!", 404);

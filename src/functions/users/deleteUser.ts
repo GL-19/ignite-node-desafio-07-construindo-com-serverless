@@ -1,53 +1,41 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
-import { document } from "src/utils/dynamodbClient";
-import { validate } from "uuid";
+import { AppError } from "src/errors/AppError";
+import * as usersRepository from "../../repositories/UsersRepository";
 
 export const handler: APIGatewayProxyHandler = async (event) => {
-	const { user_id } = event.pathParameters;
+	try {
+		const { user_id } = event.pathParameters;
 
-	const validUserId = validate(user_id);
+		const user = await usersRepository.getUserById(user_id);
 
-	if (!validUserId) {
+		if (Object.keys(user).length === 0) {
+			throw new AppError(`User not found!`, 404);
+		}
+
+		await usersRepository.deleteUser(user_id);
+
 		return {
-			statusCode: 400,
+			statusCode: 200,
 			body: JSON.stringify({
-				message: "Invalid user id!",
+				message: "User deleted!",
+				user,
 			}),
 		};
+	} catch (err) {
+		if (err instanceof AppError) {
+			return {
+				statusCode: err.statusCode,
+				body: JSON.stringify({
+					message: err.message,
+				}),
+			};
+		} else {
+			return {
+				statusCode: 500,
+				body: JSON.stringify({
+					message: "Internal Server Error!",
+				}),
+			};
+		}
 	}
-
-	const user = await document
-		.get({
-			TableName: "users",
-			Key: {
-				id: user_id,
-			},
-		})
-		.promise();
-
-	if (Object.keys(user).length < 1) {
-		return {
-			statusCode: 404,
-			body: JSON.stringify({
-				message: "User not found!",
-			}),
-		};
-	}
-
-	await document
-		.delete({
-			TableName: "users",
-			Key: {
-				id: user_id,
-			},
-		})
-		.promise();
-
-	return {
-		statusCode: 200,
-		body: JSON.stringify({
-			message: "User deleted!",
-			user,
-		}),
-	};
 };

@@ -1,19 +1,15 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
 import { AppError } from "src/errors/AppError";
-import { document } from "../../utils/dynamodbClient";
+import * as usersRepository from "../../repositories/UsersRepository";
 
 export const handler: APIGatewayProxyHandler = async () => {
 	try {
-		const response = await document
-			.scan({
-				TableName: "users",
-			})
-			.promise();
+		const users = await usersRepository.listUsers();
 
 		return {
 			statusCode: 200,
 			body: JSON.stringify({
-				users: response.Items,
+				users,
 			}),
 		};
 	} catch (err) {
