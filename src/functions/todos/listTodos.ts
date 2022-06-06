@@ -1,7 +1,7 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
-import { document } from "../../utils/dynamodbClient";
 import { AppError } from "src/errors/AppError";
 import * as usersRepository from "../../repositories/UsersRepository";
+import * as todosRepository from "../../repositories/TodosRepository";
 
 export const handler: APIGatewayProxyHandler = async (event) => {
 	try {
@@ -13,17 +13,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 			throw new AppError("User not found!", 404);
 		}
 
-		const todosQueryResponse = await document
-			.scan({
-				TableName: "todos",
-				FilterExpression: "user_id = :id",
-				ExpressionAttributeValues: {
-					":id": user_id,
-				},
-			})
-			.promise();
-
-		const todos = todosQueryResponse.Items;
+		const todos = await todosRepository.listTodosByUserId(user_id);
 
 		return {
 			statusCode: 200,

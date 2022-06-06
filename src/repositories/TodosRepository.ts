@@ -30,6 +30,19 @@ async function listTodos(): Promise<Todo[]> {
 
 	return todos as Todo[];
 }
+async function listTodosByUserId(user_id: string): Promise<Todo[]> {
+	const { Items: todos } = await document
+		.scan({
+			TableName: "todos",
+			FilterExpression: "user_id = :user_id",
+			ExpressionAttributeValues: {
+				":user_id": user_id,
+			},
+		})
+		.promise();
+
+	return todos as Todo[];
+}
 
 async function getTodoById(id: string): Promise<Todo> {
 	const { Item: todo } = await document
@@ -44,4 +57,4 @@ async function getTodoById(id: string): Promise<Todo> {
 	return todo as Todo;
 }
 
-export { getTodoById, createTodo, deleteTodo, listTodos };
+export { getTodoById, createTodo, deleteTodo, listTodos, listTodosByUserId };

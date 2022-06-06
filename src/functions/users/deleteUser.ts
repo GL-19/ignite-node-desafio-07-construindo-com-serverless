@@ -8,7 +8,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
 		const user = await usersRepository.getUserById(user_id);
 
-		if (Object.keys(user).length === 0) {
+		if (!user) {
 			throw new AppError(`User not found!`, 404);
 		}
 

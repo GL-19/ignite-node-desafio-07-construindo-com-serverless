@@ -1,20 +1,12 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
-import { document } from "../../utils/dynamodbClient";
-import { v4 as uuid } from "uuid";
 import { AppError } from "src/errors/AppError";
 import * as usersRepository from "../../repositories/UsersRepository";
+import * as todosRepository from "../../repositories/TodosRepository";
+import { Todo } from "src/entities/Todo";
 
 interface IRequestBody {
 	title: string;
 	deadline: string;
-}
-
-interface ITodoData {
-	id: string;
-	user_id: string;
-	title: string;
-	deadline: string;
-	done: boolean;
 }
 
 export const handler: APIGatewayProxyHandler = async (event) => {
@@ -32,26 +24,15 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 			throw new AppError("User not found!", 404);
 		}
 
-		const todoData: ITodoData = {
-			id: uuid(),
-			user_id,
-			title,
-			done: false,
-			deadline: new Date(deadline).toDateString(),
-		};
+		const todo = new Todo(user_id, title, deadline);
 
-		await document
-			.put({
-				TableName: "todos",
-				Item: todoData,
-			})
-			.promise();
+		await todosRepository.createTodo(todo);
 
 		return {
 			statusCode: 201,
 			body: JSON.stringify({
 				message: "Todo created!",
-				todo: todoData,
+				todo,
 			}),
 		};
 	} catch (err) {

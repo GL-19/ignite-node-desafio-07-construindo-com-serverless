@@ -1,7 +1,7 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
 import { AppError } from "src/errors/AppError";
-import { document } from "src/utils/dynamodbClient";
 import * as usersRepository from "../../repositories/UsersRepository";
+import * as todosRepository from "../../repositories/TodosRepository";
 
 export const handler: APIGatewayProxyHandler = async (event) => {
 	try {
@@ -9,31 +9,21 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
 		const user = await usersRepository.getUserById(user_id);
 
-		if (Object.keys(user).length === 0) {
+		if (!user) {
 			throw new AppError("User not found!", 404);
 		}
 
-		const todo = await document
-			.get({
-				TableName: "todos",
-				Key: {
-					id: todo_id,
-				},
-			})
-			.promise();
+		const todo = await todosRepository.getTodoById(todo_id);
 
-		if (Object.keys(todo).length === 0) {
+		if (!todo) {
 			throw new AppError("Todo not found!", 404);
 		}
 
-		await document
-			.delete({
-				TableName: "todos",
-				Key: {
-					id: todo_id,
-				},
-			})
-			.promise();
+		if (user.id !== todo.user_id) {
+			throw new AppError("Forbidden", 403);
+		}
+
+		await todosRepository.deleteTodo(todo_id);
 
 		return {
 			statusCode: 200,
